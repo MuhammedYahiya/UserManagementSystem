@@ -1,6 +1,8 @@
 package main
 
 import (
+	"github.com/MuhammedYahiya/UserManagementSystem/models"
+	"github.com/MuhammedYahiya/UserManagementSystem/routes"
 	"github.com/MuhammedYahiya/UserManagementSystem/utils"
 	"github.com/gin-gonic/gin"
 )
@@ -8,12 +10,13 @@ import (
 func main() {
 	r := gin.Default()
 	utils.ConnectDB()
+	err := utils.DB.AutoMigrate(&models.User{})
+	if err != nil {
+		panic(err)
+	}
+	routes.InitializeRouter(r)
 
-	r.GET("/", func(ctx *gin.Context) {
-		ctx.JSON(200, gin.H{
-			"message": "created server",
-		})
-	})
-
-	r.Run()
+	if err := r.Run(":8080"); err != nil {
+		panic(err)
+	}
 }
