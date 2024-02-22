@@ -11,6 +11,7 @@ func main() {
 	r := gin.Default()
 	utils.ConnectDB()
 	err := utils.DB.AutoMigrate(&models.User{})
+	utils.DB.AutoMigrate(&models.Admin{})
 	if err != nil {
 		panic(err)
 	}

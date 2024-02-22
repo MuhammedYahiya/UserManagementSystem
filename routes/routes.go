@@ -11,4 +11,9 @@ func InitializeRouter(r *gin.Engine) {
 		userRouter.POST("/register", controllers.Singup)
 		userRouter.POST("/login", controllers.LoginUser)
 	}
+
+	adminRouter := r.Group("/admin")
+	{
+		adminRouter.POST("/login", controllers.AdminLoginUser)
+	}
 }
