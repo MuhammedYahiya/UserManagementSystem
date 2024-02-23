@@ -6,6 +6,7 @@ import (
 
 	"github.com/MuhammedYahiya/UserManagementSystem/models"
 	"github.com/MuhammedYahiya/UserManagementSystem/utils"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -24,8 +25,6 @@ func AdminLoginUser(c *gin.Context) {
 		return
 	}
 
-	// fmt.Println(existingUser.Password)
-	fmt.Println(admin.Password)
 	// Compare the hashed password with the plain text password
 	err := bcrypt.CompareHashAndPassword([]byte(existingAdmin.Password), []byte(admin.Password))
 	if err != nil {
@@ -33,6 +32,16 @@ func AdminLoginUser(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid password"})
 		return
 	}
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"adminID": existingAdmin.ID,
+		"email":   existingAdmin.Email,
+	})
 
-	c.JSON(http.StatusOK, gin.H{"message": "Login successful"})
+	tokenString, err := token.SignedString([]byte("https://jwt.io/#debugger-io?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not loging"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"token": tokenString})
 }
