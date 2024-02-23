@@ -45,3 +45,19 @@ func AdminLoginUser(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"token": tokenString})
 }
+
+func GetAllUsers(c *gin.Context) {
+	var users []struct {
+		ID       uint   `json:"id"`
+		Username string `json:"username"`
+		Email    string `json:"email"`
+	}
+	result := utils.DB.Table("users").Select("id, username, email").Find(&users)
+	if result.Error != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "server error",
+		})
+		return
+	}
+	c.JSON(http.StatusOK, users)
+}

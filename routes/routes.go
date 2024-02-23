@@ -2,6 +2,7 @@ package routes
 
 import (
 	"github.com/MuhammedYahiya/UserManagementSystem/controllers"
+	"github.com/MuhammedYahiya/UserManagementSystem/middleware"
 	"github.com/gin-gonic/gin"
 )
 
@@ -15,5 +16,6 @@ func InitializeRouter(r *gin.Engine) {
 	adminRouter := r.Group("/admin")
 	{
 		adminRouter.POST("/login", controllers.AdminLoginUser)
+		adminRouter.GET("/users", middleware.AdminAuthMiddleware(), controllers.GetAllUsers)
 	}
 }
