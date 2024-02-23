@@ -18,5 +18,6 @@ func InitializeRouter(r *gin.Engine) {
 		adminRouter.POST("/login", controllers.AdminLoginUser)
 		adminRouter.GET("/users", middleware.AdminAuthMiddleware(), controllers.GetAllUsers)
 		adminRouter.GET("/user/:id", middleware.AdminAuthMiddleware(), controllers.GetUserById)
+		adminRouter.DELETE("/user/:id", middleware.AdminAuthMiddleware(), controllers.DeleteUser)
 	}
 }

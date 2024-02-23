@@ -77,3 +77,26 @@ func GetUserById(c *gin.Context) {
 		"email":    user.Email,
 	})
 }
+
+func DeleteUser(c *gin.Context) {
+	id := c.Param("id")
+	var user models.User
+	result := utils.DB.Where("id = ?", id).Delete(&user)
+	if result.Error != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Error occurred while deleting",
+		})
+		return
+	}
+
+	if result.RowsAffected == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "No user found with given ID",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"user": "is deleted",
+	})
+}
