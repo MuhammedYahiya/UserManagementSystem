@@ -61,3 +61,19 @@ func GetAllUsers(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, users)
 }
+
+func GetUserById(c *gin.Context) {
+	id := c.Param("id")
+	var user models.User
+	result := utils.DB.First(&user, id)
+	if result.Error != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid id",
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"username": user.Username,
+		"email":    user.Email,
+	})
+}
