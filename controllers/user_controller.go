@@ -3,6 +3,7 @@ package controllers
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/MuhammedYahiya/UserManagementSystem/models"
 	"github.com/MuhammedYahiya/UserManagementSystem/utils"
@@ -72,4 +73,71 @@ func LoginUser(c *gin.Context) {
 		"message": "Login successful",
 		"token":   tokenString,
 	})
+}
+
+func PostUpdateUser(c *gin.Context) {
+	id := c.Param("id")
+	type updateUserRequestBody struct {
+		Username string `json:"username"`
+		Email    string `json:"email" gorm:"unique"`
+	}
+
+	body := updateUserRequestBody{}
+
+	if err := c.ShouldBindJSON(&body); err != nil {
+		c.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	tokenUserID, exists := c.Get("userID")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"message": "not exists",
+		})
+		return
+	}
+
+	// Assert tokenUserID to float64
+	tokenUserIDFloat, ok := tokenUserID.(float64)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "not ok",
+		})
+		return
+	}
+
+	// Convert float64 to int
+	tokenUserIDInt := int(tokenUserIDFloat)
+
+	// Convert id to int for comparison
+	idInt, err := strconv.Atoi(id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "error parsing id",
+		})
+		return
+	}
+
+	if tokenUserIDInt != idInt {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"message": "id is incorrect",
+		})
+		return
+	}
+
+	var user models.User
+	if result := utils.DB.First(&user, id); result.Error != nil {
+		c.AbortWithError(http.StatusNotFound, result.Error)
+		return
+	}
+
+	if body.Email != "" {
+		user.Email = body.Email
+	}
+	if body.Username != "" {
+		user.Username = body.Username
+	}
+
+	utils.DB.Save(&user)
+	c.JSON(http.StatusOK, &user)
 }
